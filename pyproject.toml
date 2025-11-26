@@ -1,0 +1,20 @@
+[project]
+name = "nlp2sql"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.122.0",
+    "langchain>=1.1.0",
+    "langchain-core>=1.1.0",
+    "langchain-openai>=1.1.0",
+    "pydantic-settings>=2.12.0",
+    "python-dotenv>=1.2.1",
+    "uvicorn[standard]>=0.38.0",
+]
+
+[dependency-groups]
+dev = [
+    "requests>=2.32.5",
+]
