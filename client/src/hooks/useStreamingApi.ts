@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export type StreamChunk = {
   token: string;
+  tool_name?: string;
   done: boolean;
   model?: string;
 };
@@ -16,6 +17,7 @@ export type StreamCallbacks = {
   onComplete: () => void;
   onError: (error: Error) => void;
   onModel?: (model: string) => void;
+  onTool?: (tool_name: string, content: string) => void;
 };
 
 export const useStreamingApi = () => {
@@ -70,6 +72,11 @@ export const useStreamingApi = () => {
 
               if (data.model && callbacks.onModel) {
                 callbacks.onModel(data.model);
+              }
+
+              if (data.tool_name && callbacks.onTool) {
+                callbacks.onTool(data.tool_name, data.token);
+                continue;
               }
 
               if (data.token) {

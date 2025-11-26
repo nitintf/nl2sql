@@ -17,11 +17,18 @@ export type ChatMessage = {
   }[];
 };
 
+export type ChatTool = {
+  name: string;
+  content: string;
+  id: string;
+};
+
 export type ChatStatus = "submitted" | "streaming" | "ready" | "error";
 
 export const useAiChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<ChatStatus>("ready");
+  const [tools, setTools] = useState<ChatTool[]>([]);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const { streamChat } = useStreamingApi();
 
@@ -115,6 +122,9 @@ export const useAiChat = () => {
               }
               setAbortController(null);
             },
+            onTool: (tool_name: string, content: string) => {
+              setTools((prev) => [...prev, { name: tool_name, content, id: nanoid() }]);
+            },
           },
           controller.signal
         );
@@ -154,6 +164,7 @@ export const useAiChat = () => {
 
   const clearMessages = useCallback(() => {
     setMessages([]);
+    setTools([]);
     setStatus("ready");
   }, []);
 
@@ -168,6 +179,7 @@ export const useAiChat = () => {
   return {
     messages,
     status,
+    tools,
     sendMessage,
     clearMessages,
     stopStreaming,

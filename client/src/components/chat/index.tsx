@@ -28,8 +28,15 @@ export const Chat = ({ chatId, setChatId }: ChatProps) => {
   const [text, setText] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("gpt-4o-mini");
 
-  const { messages, status, sendMessage, stopStreaming, isStreaming, clearMessages } =
-    useAiChat();
+  const {
+    messages,
+    status,
+    tools,
+    sendMessage,
+    stopStreaming,
+    isStreaming,
+    clearMessages,
+  } = useAiChat();
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text?.trim());
@@ -81,6 +88,7 @@ export const Chat = ({ chatId, setChatId }: ChatProps) => {
             ) : (
               <ChatMessages
                 messages={messages}
+                tools={tools}
                 isStreaming={isStreaming}
                 onCopy={handleCopy}
                 onRegenerate={handleRegenerate}
@@ -107,4 +115,3 @@ export const Chat = ({ chatId, setChatId }: ChatProps) => {
 };
 
 export default Chat;
-

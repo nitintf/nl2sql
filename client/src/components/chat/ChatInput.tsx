@@ -22,9 +22,14 @@ import {
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
 import { Button } from "@/components/ui/button";
-import { StopCircleIcon, CheckIcon, MessagesSquareIcon } from "lucide-react";
+import {
+  StopCircleIcon,
+  CheckIcon,
+  MessageCircleIcon,
+} from "lucide-react";
 import type { ChatStatus } from "@/hooks";
 import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type ChatInputProps = {
   text: string;
@@ -81,7 +86,7 @@ export const ChatInput = ({
     <div className="shrink-0 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto w-full max-w-4xl px-4 py-4">
         <div className="rounded-2xl border border-border/50 bg-card/50 shadow-lg shadow-black/5 backdrop-blur-sm">
-          <PromptInput  onSubmit={onSubmit}>
+          <PromptInput onSubmit={onSubmit}>
             <PromptInputBody>
               <PromptInputTextarea
                 onChange={(event) => onTextChange(event.target.value)}
@@ -93,11 +98,16 @@ export const ChatInput = ({
 
             <PromptInputFooter>
               <PromptInputTools>
-                <PromptInputButton onClick={newChatClick}>
-                  <MessagesSquareIcon className="size-4" />
-                  <p>New Chat</p>
-                </PromptInputButton>
-
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PromptInputButton onClick={newChatClick}>
+                      <MessageCircleIcon className="size-4" />
+                    </PromptInputButton>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>New Chat</p>
+                  </TooltipContent>
+                </Tooltip>
 
                 <ModelSelector
                   onOpenChange={setModelSelectorOpen}
@@ -106,7 +116,9 @@ export const ChatInput = ({
                   <ModelSelectorTrigger asChild>
                     <PromptInputButton>
                       {selectedModelData?.chefSlug && (
-                        <ModelSelectorLogo provider={selectedModelData.chefSlug} />
+                        <ModelSelectorLogo
+                          provider={selectedModelData.chefSlug}
+                        />
                       )}
                       {selectedModelData?.name && (
                         <ModelSelectorName>
@@ -171,5 +183,3 @@ export const ChatInput = ({
     </div>
   );
 };
-
-

@@ -8,9 +8,12 @@ import { Loader } from "@/components/ai-elements/loader";
 import type { ChatMessage } from "@/hooks";
 import { MessageActions } from "./MessageActions";
 import { ModelSelectorLogo } from "../ai-elements/model-selector";
+import { ChatTools } from "./ChatTools";
+import type { ChatTool } from "@/hooks/useAiChat";
 
 type ChatMessagesProps = {
   messages: ChatMessage[];
+  tools: ChatTool[];
   isStreaming: boolean;
   onCopy: (content: string) => void;
   onRegenerate: (messageKey: string) => void;
@@ -18,6 +21,7 @@ type ChatMessagesProps = {
 
 export const ChatMessages = ({
   messages,
+  tools,
   isStreaming,
   onCopy,
   onRegenerate,
@@ -29,11 +33,18 @@ export const ChatMessages = ({
         const showActions =
           message.from === "assistant" && (!isStreaming || !isLastMessage);
 
+        const showTools = showActions && !isStreaming && tools.length > 0;
+        const showLoader =
+          message.from === "assistant" && isStreaming && isLastMessage;
+
         return (
           <MessageBranch defaultBranch={0} key={message.key}>
             <MessageBranchContent>
               {versions.map((version) => (
-                <Message from={message.from} key={`${message.key}-${version.id}`}>
+                <Message
+                  from={message.from}
+                  key={`${message.key}-${version.id}`}
+                >
                   <div
                     className={
                       message.from === "user"
@@ -41,13 +52,13 @@ export const ChatMessages = ({
                         : "mr-auto w-fit max-w-[80%]"
                     }
                   >
-                    {/* Show loader if message is empty and streaming */}
-                    {message.from === "assistant" && !version.content && isStreaming && isLastMessage ? (
+                    {showLoader && !version.content ? (
                       <Loader />
                     ) : (
                       <>
                         <MessageContent className="prose prose-invert max-w-none">
                           <MessageResponse>{version.content}</MessageResponse>
+                          {showTools ? <ChatTools tools={tools} /> : null}
                         </MessageContent>
 
                         {/* Action buttons for AI messages */}
@@ -62,7 +73,10 @@ export const ChatMessages = ({
                             />
                             {message.model && (
                               <span className="text-xs text-muted-foreground flex items-center gap-2">
-                                <ModelSelectorLogo provider={'openai'} className="size-4" />
+                                <ModelSelectorLogo
+                                  provider={"openai"}
+                                  className="size-4"
+                                />
                                 <span className="text-sm text-muted-foreground -mt-1">
                                   {message.model}
                                 </span>
@@ -82,4 +96,3 @@ export const ChatMessages = ({
     </div>
   );
 };
-

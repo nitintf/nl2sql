@@ -6,12 +6,14 @@ import json
 import time
 from typing import AsyncIterator
 
+from langchain_core.messages import AIMessageChunk, ToolMessageChunk
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
 
 from api.core.config import settings
 from api.core.logging import logger
+from api.tools import calculator_tool, get_weather
 
 # System Prompt for SQL Assistant
 SQL_ASSISTANT_PROMPT = """You are an expert SQL and Database Assistant. Your role is to help users ONLY with SQL queries, database design, optimization, and natural language to SQL conversion.
@@ -138,7 +140,33 @@ class ChatService:
             llm,
             checkpointer=InMemorySaver(),
             # system_prompt=SQL_ASSISTANT_PROMPT,
+            tools=[calculator_tool, get_weather],
         )
+
+    async def _parse_model_content(self, chunk: AIMessageChunk) -> str:
+        """Parse model content and return the text."""
+        text = ""
+        if hasattr(chunk, "content") and chunk.content:
+            text = chunk.content
+        elif hasattr(chunk, "additional_kwargs") and chunk.additional_kwargs.get(
+            "content"
+        ):
+            text = chunk.additional_kwargs["content"]
+        return text
+
+    async def _parse_tool_content(self, chunk: ToolMessageChunk) -> str:
+        """
+        Parse tool content and return the tool name and content.
+        """
+
+        # Extract tool name and content if available
+        tool_name = getattr(chunk, "name", None)
+        tool_content = getattr(chunk, "content", None)
+
+        return {
+            "tool_name": tool_name,
+            "content": tool_content,
+        }
 
     async def stream_response(
         self, user_message: str, model: str = "gpt-4o-mini", chat_id: str = ""
@@ -163,29 +191,39 @@ class ChatService:
             model_data = {"token": "", "done": False, "model": model}
             yield f"data: {json.dumps(model_data)}\n\n"
 
-            token_count = 0
             # Stream tokens as they are generated for low-latency/fast delivery.
-            async for chunk in agent.astream(
+            async for chunk_tuple in agent.astream(
                 input={"messages": [{"role": "user", "content": user_message}]},
                 config={"configurable": {"thread_id": chat_id}},
                 stream_mode="messages",
             ):
-                print(chunk)
-                # The API can sometimes send events that aren't tokens (e.g. tool calls), filter for tokens with role/content
-                if hasattr(chunk, "content") and chunk.content:
-                    for token in chunk.content:
-                        if token:
-                            token_count += 1
-                            chunk_data = {"token": token, "done": False}
-                            yield f"data: {json.dumps(chunk_data)}\n\n"
+                chunk, metadata = chunk_tuple
+
+                # Check for tool_call_id in chunk (from a tool call output chunk)
+                tool_call_id = getattr(chunk, "tool_call_id", None)
+                if tool_call_id:
+                    tool_data = await self._parse_tool_content(chunk)
+                    print(tool_data)
+                    # Compose a JSON payload with tool_name and content
+                    tool_chunk_data = {
+                        "token": tool_data.get("content"),
+                        "tool_name": tool_data.get("tool_name"),
+                        "done": False,
+                    }
+                    yield f"data: {json.dumps(tool_chunk_data)}\n\n"
+                else:
+                    text = await self._parse_model_content(chunk)
+                    model_chunk_data = {
+                        "token": text,
+                        "done": False,
+                    }
+                    yield f"data: {json.dumps(model_chunk_data)}\n\n"
 
             final_chunk_data = {"token": "", "done": True}
             yield f"data: {json.dumps(final_chunk_data)}\n\n"
 
             end_time = time.time()
-            logger.info(
-                f"Processed {token_count} tokens in {end_time - start_time:.2f} seconds"
-            )
+            logger.info(f"Processed in {end_time - start_time:.2f} seconds")
 
         except Exception as e:
             logger.error(f"Error in chat service: {str(e)}")
