@@ -30,7 +30,7 @@ export const InlineCitation = ({
   ...props
 }: InlineCitationProps) => (
   <span
-    className={cn("group inline items-center gap-1", className)}
+    className={cn("group flex items-center gap-1 mt-1", className)}
     {...props}
   />
 );

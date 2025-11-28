@@ -11,9 +11,11 @@ import {
   InlineCitationCarouselNext,
   InlineCitationCarouselPrev,
   InlineCitationSource,
+  InlineCitationText,
 } from "@/components/ai-elements/inline-citation";
 
 import { ChatTool } from "@/hooks/useAiChat";
+import { ToolCase } from "lucide-react";
 
 interface ChatToolsProps {
   tools: ChatTool[];
@@ -22,10 +24,11 @@ interface ChatToolsProps {
 export const ChatTools = ({ tools }: ChatToolsProps) => {
   return (
     <InlineCitation>
+      <InlineCitationText>
+        <ToolCase className="size-4 text-primary" />
+      </InlineCitationText>
       <InlineCitationCard>
-        <InlineCitationCardTrigger
-          sources={tools.map((tool) => tool.name)}
-        />
+        <InlineCitationCardTrigger sources={tools.map((tool) => tool.name)} />
         <InlineCitationCardBody>
           <InlineCitationCarousel>
             <InlineCitationCarouselHeader>

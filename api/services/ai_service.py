@@ -104,7 +104,7 @@ class AIService:
                     yield f"data: {json.dumps(tool_data)}\n\n"
                 else:
                     text = await self._parse_model_content(chunk)
-                    yield f"data: {json.dumps({'token': text, 'done': False})}\n\n"
+                    yield f"data: {json.dumps({'token': text, 'done': False, 'model': request.model})}\n\n"
 
             end_time = time.time()
             logger.info(f"Time taken: {end_time - start_time} seconds")
