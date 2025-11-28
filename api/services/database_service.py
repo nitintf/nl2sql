@@ -32,7 +32,6 @@ class DatabaseService:
     def _initialize_database(self):
         """Initialize database connection and LangChain components."""
         try:
-            # db_uri = f"postgresql://postgres:nitin123@db.oihylrqyqljixpcnouce.supabase.co:5432/postgres"
             db_uri = f"postgresql://{settings.db_user}:{settings.db_password}@{settings.db_host}:{settings.db_port}/{settings.db_name}"
             self.db = SQLDatabase.from_uri(db_uri)
             logger.info(f"Database initialized successfully")
