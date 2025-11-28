@@ -6,9 +6,8 @@ from langchain_openai import ChatOpenAI
 
 from api.core.config import settings
 from api.core.logging import logger
-from api.services.database_service import DatabaseService
-from api.services.sql_service import sql_service
-from api.prompts.sql_prompts import get_suggestion_generation_prompt
+from api.services.database_service import database_service
+from api.prompts.prompts import get_suggestion_generation_prompt
 from api.models.chat import SuggestionsResponse
 
 
@@ -26,8 +25,6 @@ class SuggestionService:
             max_retries=0,
         )
 
-        self.db_service = DatabaseService(llm=self.llm)
-
     def generate_suggestions(self):
         """
         Generate 5 query suggestions based on the database schema.
@@ -37,8 +34,8 @@ class SuggestionService:
         """
         try:
             # Get table information
-            table_info = self.db_service.get_db_info()
-            usable_tables = self.db_service.get_usable_tables()
+            table_info = database_service.get_db_info()
+            usable_tables = database_service.get_usable_tables()
 
             if not table_info:
                 logger.warning("No table information available")

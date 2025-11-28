@@ -117,7 +117,7 @@ export const useAiChat = () => {
               }
               setAbortController(null);
             },
-            onTool: (tool_name: string, content: string) => {
+            onTool: (tool_name: string, tool_call_id: string, content: string) => {
               setMessages((prev) =>
                 prev.map((msg) => {
                   if (msg.key === assistantMessageKey) {
@@ -125,7 +125,7 @@ export const useAiChat = () => {
                       ...msg,
                       tools: [
                         ...(msg.tools || []),
-                        { name: tool_name, content, id: nanoid() },
+                        { name: tool_name, content, id: tool_call_id },
                       ],
                     };
                   }

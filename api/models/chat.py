@@ -27,3 +27,9 @@ class SuggestionsResponse(BaseModel):
     suggestions: list[QuerySuggestion] = Field(
         description="List of 5 query suggestions"
     )
+
+
+class QueryInput(BaseModel):
+    """Input model for query database tool."""
+
+    question: str = Field(description="The user's data question in natural language")

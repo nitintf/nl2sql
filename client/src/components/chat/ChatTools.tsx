@@ -11,7 +11,6 @@ import {
   InlineCitationCarouselNext,
   InlineCitationCarouselPrev,
   InlineCitationSource,
-  InlineCitationText,
 } from "@/components/ai-elements/inline-citation";
 
 import { ChatTool } from "@/hooks/useAiChat";
@@ -23,7 +22,6 @@ interface ChatToolsProps {
 export const ChatTools = ({ tools }: ChatToolsProps) => {
   return (
     <InlineCitation>
-      <InlineCitationText>Tools used:</InlineCitationText>
       <InlineCitationCard>
         <InlineCitationCardTrigger
           sources={tools.map((tool) => tool.name)}

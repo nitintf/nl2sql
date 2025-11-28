@@ -2,9 +2,10 @@ import { API_URL } from "@/lib/constants";
 
 export type StreamChunk = {
   token: string;
-  tool_name?: string;
   done: boolean;
-  model?: string;
+  model: string;
+  tool_name: string;
+  tool_call_id: string;
 };
 
 export type StreamCallbacks = {
@@ -12,7 +13,7 @@ export type StreamCallbacks = {
   onComplete: () => void;
   onError: (error: Error) => void;
   onModel?: (model: string) => void;
-  onTool?: (tool_name: string, content: string) => void;
+  onTool?: (tool_name: string, tool_call_id: string, content: string) => void;
 };
 
 export const useStreamingApi = () => {
@@ -70,7 +71,7 @@ export const useStreamingApi = () => {
               }
 
               if (data.tool_name && callbacks.onTool) {
-                callbacks.onTool(data.tool_name, data.token);
+                callbacks.onTool(data.tool_name, data.tool_call_id, data.token);
                 continue;
               }
 

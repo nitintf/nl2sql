@@ -1,18 +1,18 @@
 import json
+import time
 from typing import AsyncIterator, Optional
 
 from langchain.agents import create_agent
 from langchain_core.messages import AIMessageChunk, ToolMessageChunk
-from langchain_core.prompts import ChatPromptTemplate
-from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.store.memory import InMemoryStore
 from langchain_openai import ChatOpenAI
 from langgraph.graph.state import CompiledStateGraph
 
 from api.core.config import settings
 from api.core.logging import logger
 from api.models.chat import ChatRequest
-from api.prompts.sql_prompts import SQL_AGENT_SYSTEM_PROMPT
-from api.services.database_service import DatabaseService
+from api.prompts.prompts import SQL_AGENT_SYSTEM_PROMPT
+from api.services.database_service import database_service
 
 
 class AIService:
@@ -20,6 +20,7 @@ class AIService:
 
     def __init__(self):
         self.agent: Optional[CompiledStateGraph] = None
+        self.store = InMemoryStore()
 
         if not settings.openai_api_key:
             logger.warning(
@@ -33,22 +34,21 @@ class AIService:
             model = settings.openai_model
 
         llm = ChatOpenAI(
-            model=model,
+            model=settings.openai_model,
             temperature=settings.openai_temperature,
             max_tokens=settings.openai_max_tokens,
             openai_api_key=settings.openai_api_key,
             streaming=True,
         )
 
-        db_service = DatabaseService(llm=llm)
-        toolkit = db_service.get_toolkit()
-        db_info = db_service.get_db_info()
+        toolkit = database_service.get_toolkit()
+        db_info = database_service.get_db_info()
 
         return create_agent(
             model=llm,
             tools=toolkit.get_tools(),
             system_prompt=SQL_AGENT_SYSTEM_PROMPT.format(db_info=db_info),
-            checkpointer=InMemorySaver(),
+            store=self.store,
         )
 
     @staticmethod
@@ -92,6 +92,7 @@ class AIService:
         try:
             agent = self._get_agent(request.model)
 
+            start_time = time.time()
             async for event_tuple in agent.astream(
                 input={"messages": [{"role": "user", "content": request.message}]},
                 config={"configurable": {"thread_id": request.chat_id}},
@@ -104,6 +105,11 @@ class AIService:
                 else:
                     text = await self._parse_model_content(chunk)
                     yield f"data: {json.dumps({'token': text, 'done': False})}\n\n"
+
+            end_time = time.time()
+            logger.info(f"Time taken: {end_time - start_time} seconds")
+
+            yield f"data: {json.dumps({'done': True, 'token': '', 'model': request.model})}\n\n"
         except Exception as e:
             logger.error(f"Error streaming AI service response: {str(e)}")
             raise
