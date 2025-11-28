@@ -28,6 +28,9 @@ class DatabaseService:
     def get_db_info(self):
         return self.db.get_context()
 
+    def get_usable_tables(self):
+        return self.db.get_usable_table_names()
+
     def get_toolkit(self):
         if not self.toolkit:
             self.toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
