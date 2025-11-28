@@ -1,8 +1,3 @@
-/**
- * Hook for managing AI chat state and interactions
- * Uses the streaming API hook to handle messages
- */
-
 import { useState, useCallback } from "react";
 import { nanoid } from "nanoid";
 import { useStreamingApi } from "./useStreamingApi";
@@ -11,6 +6,7 @@ export type ChatMessage = {
   key: string;
   from: "user" | "assistant";
   model?: string;
+  tools?: ChatTool[];
   versions: {
     id: string;
     content: string;
@@ -28,7 +24,6 @@ export type ChatStatus = "submitted" | "streaming" | "ready" | "error";
 export const useAiChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<ChatStatus>("ready");
-  const [tools, setTools] = useState<ChatTool[]>([]);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const { streamChat } = useStreamingApi();
 
@@ -69,15 +64,15 @@ export const useAiChat = () => {
     async (userMessage: string, selectedModel: string, chatId: string) => {
       setStatus("streaming");
 
-      // Create new abort controller for this request
       const controller = new AbortController();
       setAbortController(controller);
 
-      // Create assistant message placeholder
       const assistantMessageId = nanoid();
+      const assistantMessageKey = nanoid();
       const assistantMessage: ChatMessage = {
-        key: nanoid(),
+        key: assistantMessageKey,
         from: "assistant",
+        tools: [],
         versions: [
           {
             id: assistantMessageId,
@@ -123,7 +118,20 @@ export const useAiChat = () => {
               setAbortController(null);
             },
             onTool: (tool_name: string, content: string) => {
-              setTools((prev) => [...prev, { name: tool_name, content, id: nanoid() }]);
+              setMessages((prev) =>
+                prev.map((msg) => {
+                  if (msg.key === assistantMessageKey) {
+                    return {
+                      ...msg,
+                      tools: [
+                        ...(msg.tools || []),
+                        { name: tool_name, content, id: nanoid() },
+                      ],
+                    };
+                  }
+                  return msg;
+                })
+              );
             },
           },
           controller.signal
@@ -142,7 +150,6 @@ export const useAiChat = () => {
 
       setStatus("submitted");
 
-      // Add user message
       const userMessage: ChatMessage = {
         key: nanoid(),
         from: "user",
@@ -156,7 +163,6 @@ export const useAiChat = () => {
 
       setMessages((prev) => [...prev, userMessage]);
 
-      // Stream assistant response
       streamResponse(content, selectedModel, chatId);
     },
     [streamResponse]
@@ -164,7 +170,6 @@ export const useAiChat = () => {
 
   const clearMessages = useCallback(() => {
     setMessages([]);
-    setTools([]);
     setStatus("ready");
   }, []);
 
@@ -179,7 +184,6 @@ export const useAiChat = () => {
   return {
     messages,
     status,
-    tools,
     sendMessage,
     clearMessages,
     stopStreaming,

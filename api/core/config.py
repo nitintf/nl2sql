@@ -34,6 +34,13 @@ class Settings(BaseSettings):
     openai_temperature: float = 0.7
     openai_max_tokens: int = 1000
 
+    # Database Configuration (PostgreSQL only)
+    db_user: str = ""
+    db_password: str = ""
+    db_host: str = "localhost"
+    db_port: int = 5432
+    db_name: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
     )

@@ -12,13 +12,6 @@ import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { nanoid } from "nanoid";
 
-const suggestions = [
-  "What is SQL?",
-  "Explain database normalization",
-  "How do I write a JOIN query?",
-  "What's the difference between SQL and NoSQL?",
-];
-
 interface ChatProps {
   chatId: string;
   setChatId: (chatId: string) => void;
@@ -31,7 +24,6 @@ export const Chat = ({ chatId, setChatId }: ChatProps) => {
   const {
     messages,
     status,
-    tools,
     sendMessage,
     stopStreaming,
     isStreaming,
@@ -81,14 +73,10 @@ export const Chat = ({ chatId, setChatId }: ChatProps) => {
         <Conversation className="h-full">
           <ConversationContent className="mx-auto max-w-4xl px-4">
             {messages.length === 0 ? (
-              <ChatEmptyState
-                suggestions={suggestions}
-                onSuggestionClick={handleSuggestionClick}
-              />
+              <ChatEmptyState onSuggestionClick={handleSuggestionClick} />
             ) : (
               <ChatMessages
                 messages={messages}
-                tools={tools}
                 isStreaming={isStreaming}
                 onCopy={handleCopy}
                 onRegenerate={handleRegenerate}

@@ -9,11 +9,9 @@ import type { ChatMessage } from "@/hooks";
 import { MessageActions } from "./MessageActions";
 import { ModelSelectorLogo } from "../ai-elements/model-selector";
 import { ChatTools } from "./ChatTools";
-import type { ChatTool } from "@/hooks/useAiChat";
 
 type ChatMessagesProps = {
   messages: ChatMessage[];
-  tools: ChatTool[];
   isStreaming: boolean;
   onCopy: (content: string) => void;
   onRegenerate: (messageKey: string) => void;
@@ -21,7 +19,6 @@ type ChatMessagesProps = {
 
 export const ChatMessages = ({
   messages,
-  tools,
   isStreaming,
   onCopy,
   onRegenerate,
@@ -33,7 +30,8 @@ export const ChatMessages = ({
         const showActions =
           message.from === "assistant" && (!isStreaming || !isLastMessage);
 
-        const showTools = showActions && !isStreaming && tools.length > 0;
+        const messageTools = message.tools || [];
+        const showTools = showActions && !isStreaming && messageTools.length > 0;
         const showLoader =
           message.from === "assistant" && isStreaming && isLastMessage;
 
@@ -58,7 +56,7 @@ export const ChatMessages = ({
                       <>
                         <MessageContent className="prose prose-invert max-w-none">
                           <MessageResponse>{version.content}</MessageResponse>
-                          {showTools ? <ChatTools tools={tools} /> : null}
+                          {showTools ? <ChatTools tools={messageTools} /> : null}
                         </MessageContent>
 
                         {/* Action buttons for AI messages */}

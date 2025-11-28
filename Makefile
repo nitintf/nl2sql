@@ -17,7 +17,7 @@ install:
 	uv sync
 	@echo ""
 	@echo "Installing frontend dependencies..."
-	cd client && npm install
+	cd client && pnpm install
 	@echo ""
 	@echo "All dependencies installed!"
 
@@ -27,7 +27,7 @@ api:
 
 # Start client
 client:
-	cd client && npm run dev
+	cd client && pnpm run dev
 
 # Clean build artifacts
 clean:

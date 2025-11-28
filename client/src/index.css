@@ -114,29 +114,37 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   html,
   body,
   #root {
     @apply h-full w-full;
-}
-  
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
   }
+
+  /* [data-streamdown="code-block"] {
+    @apply bg-card;
+  }
+
+  [data-streamdown="code-block-body"] code span {
+    @apply text-white! dark:text-white!;
+  } */
 }
 
 @layer utilities {
   /* Smooth scrolling */
   .smooth-scroll {
     scroll-behavior: smooth;
-}
+  }
 
   /* Custom gradient text */
   .gradient-text {
     @apply bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent;
   }
-  
+
   /* Glassmorphism effect */
   .glass {
     @apply bg-background/80 backdrop-blur-sm;

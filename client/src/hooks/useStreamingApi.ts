@@ -1,9 +1,4 @@
-/**
- * Hook for handling streaming API calls
- * Manages the low-level fetch, streaming, and parsing of SSE data
- */
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_URL } from "@/lib/constants";
 
 export type StreamChunk = {
   token: string;
