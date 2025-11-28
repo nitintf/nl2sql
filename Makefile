@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "NLP2SQL Development Commands"
+	@echo "NL2SQL Development Commands"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  make install    - Install all dependencies (backend + frontend)"

@@ -12,7 +12,7 @@ export const ChatHeader = ({ chatId }: ChatHeaderProps) => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <DatabaseZapIcon className="size-4 text-primary" />
           </div>
-          <h1 className="text-lg font-semibold">NLP2SQL</h1>
+          <h1 className="text-lg font-semibold">NL2SQL</h1>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">Chat ID:</p>

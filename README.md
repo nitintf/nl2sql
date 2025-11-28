@@ -1,4 +1,4 @@
-# NLP2SQL
+# NL2SQL
 
 A FastAPI-based chat API for converting natural language queries to SQL using LangChain. This application provides an intuitive web interface where users can ask questions in natural language and receive SQL query results.
 

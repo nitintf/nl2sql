@@ -1,5 +1,5 @@
 """
-NLP2SQL FastAPI Application
+NL2SQL FastAPI Application
 A chatbot API for converting natural language queries to SQL using LangChain.
 """
 
@@ -23,14 +23,14 @@ async def lifespan(app: FastAPI):
     Handles startup and shutdown events.
     """
     # Startup
-    logger.info("🚀 Starting NLP2SQL API...")
+    logger.info("🚀 Starting NL2SQL API...")
     logger.info(f"Debug mode: {settings.debug}")
     logger.info(f"Server will run on {settings.host}:{settings.port}")
 
     yield
 
     # Shutdown
-    logger.info("Shutting down NLP2SQL API...")
+    logger.info("Shutting down NL2SQL API...")
 
 
 def create_app() -> FastAPI:

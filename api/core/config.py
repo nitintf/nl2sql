@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # Application
-    app_name: str = "NLP2SQL API"
+    app_name: str = "NL2SQL API"
     app_version: str = "0.1.0"
     app_description: str = "Natural Language to SQL conversion API using LangChain"
     debug: bool = False

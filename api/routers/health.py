@@ -15,7 +15,7 @@ async def root() -> RootResponse:
     Root endpoint - API information.
     """
     return RootResponse(
-        message="Welcome to NLP2SQL API",
+        message="Welcome to NL2SQL API",
         version=settings.app_version,
         docs="/docs",
         redoc="/redoc",
